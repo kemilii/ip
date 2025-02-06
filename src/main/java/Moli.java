@@ -40,7 +40,29 @@ public class Moli {
                 markTask(input);
             } else if (input.startsWith("unmark ")) {
                 unmarkTask(input);
-            } else {
+            }  else if (input.startsWith("todo ")) {
+                addTask(new Todo(input.substring(5)));
+            } else if (input.startsWith("deadline ")) {
+                if (!input.contains(" /by ") || input.substring(9).split(" /by ").length != 2) {
+                    System.out.println(DIVIDER);
+                    System.out.println("Sorry, please enter the correct format: 'deadline TASK_DESCRIPTION /by YOUR_DEADLINE'");
+                    System.out.println(DIVIDER);
+                } else {
+                    String[] parts = input.substring(9).split(" /by ", 2);
+                    Deadline deadline = new Deadline(parts[0], parts[1]);
+                    addTask(deadline);
+                }
+            } else if (input.startsWith("event ")) {
+                if (!input.contains(" /from ") || !input.contains(" /to ") || input.substring(6).split(" /from | /to ").length != 3) {
+                    System.out.println(DIVIDER);
+                    System.out.println("Sorry, please enter the correct format: 'event TASK_DESCRIPTION /from START_TIME /to END_TIME'");
+                    System.out.println(DIVIDER);
+                } else {
+                    String[] parts = input.substring(6).split(" /from | /to ", 3);
+                    addTask(new Event(parts[0], parts[1], parts[2]));
+                }
+            }
+            else{
                 Task task = new Task(input);
                 addTask(task);
             }
@@ -60,6 +82,7 @@ public class Moli {
             System.out.println(DIVIDER);
             System.out.println("Added: " + task + " ✅");
             System.out.println("I'll help you keep them safely, remember to come back and mark it :)");
+            System.out.println("Now you have " + taskCount + " tasks in the list.");
             System.out.println(DIVIDER);
         } else {
             System.out.println(DIVIDER);
@@ -137,4 +160,6 @@ public class Moli {
             System.out.println(DIVIDER);
         }
     }
+
+
 }
