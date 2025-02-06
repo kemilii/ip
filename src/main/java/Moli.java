@@ -25,17 +25,17 @@ public class Moli {
         System.out.println(DIVIDER);
 
         Scanner scanner = new Scanner(System.in);
-        boolean quit = false;
-        while (!quit) {
+        boolean hasQuit = false;
+        while (!hasQuit) {
             String input = scanner.nextLine().trim();
 
             if ("bye".equalsIgnoreCase(input)) {
                 System.out.println(DIVIDER);
                 System.out.println("Take care of yourself💖\nCome back anytime you need a listening ear.");
                 System.out.println(DIVIDER);
-                quit = true;
+                hasQuit = true;
             }else if ("list".equalsIgnoreCase(input)) {
-                displayTasks();
+                showTaskList();
             } else if (input.startsWith("mark ")) {
                 markTask(input);
             } else if (input.startsWith("unmark ")) {
@@ -43,7 +43,7 @@ public class Moli {
             }  else if (input.startsWith("todo ")) {
                 addTask(new Todo(input.substring(5)));
             } else if (input.startsWith("deadline ")) {
-                if (!input.contains(" /by ") || input.substring(9).split(" /by ").length != 2) {
+                if (!input.matches("^deadline .+ /by .+$")) {
                     System.out.println(DIVIDER);
                     System.out.println("Sorry, please enter the correct format: 'deadline TASK_DESCRIPTION /by YOUR_DEADLINE'");
                     System.out.println(DIVIDER);
@@ -53,7 +53,7 @@ public class Moli {
                     addTask(deadline);
                 }
             } else if (input.startsWith("event ")) {
-                if (!input.contains(" /from ") || !input.contains(" /to ") || input.substring(6).split(" /from | /to ").length != 3) {
+                if (!input.matches("^event .+ /from .+ /to .+$")) {
                     System.out.println(DIVIDER);
                     System.out.println("Sorry, please enter the correct format: 'event TASK_DESCRIPTION /from START_TIME /to END_TIME'");
                     System.out.println(DIVIDER);
@@ -72,6 +72,7 @@ public class Moli {
 
     /**
      * Adds a task to the task list.
+     * Updates task count and prints confirmation message.
      *
      * @param task    The task to be added.
      */
@@ -94,10 +95,10 @@ public class Moli {
     /**
      * Displays the list of stored tasks.
      */
-    private static void displayTasks() {
+    private static void showTaskList() {
         System.out.println(DIVIDER);
         if (taskCount == 0) {
-            System.out.println("Your task list is empty.\n What would you like to do? I'm always happy to help you record.");
+            System.out.println("Your task list is empty.\nWhat would you like to do? I'm always happy to help you record.");
         } else {
             System.out.println("Here’s what you’ve told me so far: ");
             for (int i = 0; i < taskCount; i++) {
