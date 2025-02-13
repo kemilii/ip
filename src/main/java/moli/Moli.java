@@ -1,3 +1,9 @@
+package moli;
+
+import moli.task.Task;
+import moli.task.Todo;
+import moli.task.Deadline;
+import moli.task.Event;
 import java.util.Scanner;
 
 public class Moli {
