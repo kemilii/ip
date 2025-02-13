@@ -5,11 +5,8 @@ public class Moli {
     private static final Task[] tasks = new Task[MAX_TASKS];
     private static int taskCount = 0;
 
-    final static String DIVIDER = "____________________________________________________________";
+    private static final String DIVIDER = "____________________________________________________________";
 
-    /**
-     * Main method that starts the chatbot.
-     */
     public static void main(String[] args) {
         final String LOGO = "\n"
                 + "                ███╗   ███╗ ██████╗ ██╗     ██╗\n"
@@ -28,43 +25,42 @@ public class Moli {
         boolean hasQuit = false;
         while (!hasQuit) {
             String input = scanner.nextLine().trim();
-
-            if ("bye".equalsIgnoreCase(input)) {
-                System.out.println(DIVIDER);
-                System.out.println("Take care of yourself💖\nCome back anytime you need a listening ear.");
-                System.out.println(DIVIDER);
-                hasQuit = true;
-            }else if ("list".equalsIgnoreCase(input)) {
-                showTaskList();
-            } else if (input.startsWith("mark ")) {
-                markTask(input);
-            } else if (input.startsWith("unmark ")) {
-                unmarkTask(input);
-            }  else if (input.startsWith("todo ")) {
-                addTask(new Todo(input.substring(5)));
-            } else if (input.startsWith("deadline ")) {
-                if (!input.matches("^deadline .+ /by .+$")) {
+            try {
+                if ("bye".equalsIgnoreCase(input)) {
                     System.out.println(DIVIDER);
-                    System.out.println("Sorry, please enter the correct format: 'deadline TASK_DESCRIPTION /by YOUR_DEADLINE'");
+                    System.out.println("Take care of yourself💖\nCome back anytime you need a listening ear.");
                     System.out.println(DIVIDER);
-                } else {
+                    hasQuit = true;
+                } else if ("list".equalsIgnoreCase(input)) {
+                    showTaskList();
+                } else if (input.startsWith("mark ")) {
+                    markTask(input);
+                } else if (input.startsWith("unmark ")) {
+                    unmarkTask(input);
+                } else if (input.startsWith("todo")) {
+                    if (input.length() <= 4) {
+                        throw new MoliException("Sorry. A todo task must have a description, I'm here to listen.");
+                    }
+                    addTask(new Todo(input.substring(5).trim()));
+                } else if (input.startsWith("deadline")) {
+                    if (!input.matches("^deadline .+ /by .+$")) {
+                        throw new MoliException("Sorry, please enter the correct format: 'deadline TASK_DESCRIPTION /by DEADLINE_DATE'");
+                    }
                     String[] parts = input.substring(9).split(" /by ", 2);
-                    Deadline deadline = new Deadline(parts[0], parts[1]);
-                    addTask(deadline);
-                }
-            } else if (input.startsWith("event ")) {
-                if (!input.matches("^event .+ /from .+ /to .+$")) {
-                    System.out.println(DIVIDER);
-                    System.out.println("Sorry, please enter the correct format: 'event TASK_DESCRIPTION /from START_TIME /to END_TIME'");
-                    System.out.println(DIVIDER);
-                } else {
+                    addTask(new Deadline(parts[0].trim(), parts[1].trim()));
+                } else if (input.startsWith("event")) {
+                    if (!input.matches("^event .+ /from .+ /to .+$")) {
+                        throw new MoliException("Sorry, please enter the correct format: 'event TASK_DESCRIPTION /from START_TIME /to END_TIME'");
+                    }
                     String[] parts = input.substring(6).split(" /from | /to ", 3);
-                    addTask(new Event(parts[0], parts[1], parts[2]));
+                    addTask(new Event(parts[0].trim(), parts[1].trim(), parts[2].trim()));
+                } else {
+                    throw new MoliException("Sorry. I didn't understand that command.");
                 }
-            }
-            else{
-                Task task = new Task(input);
-                addTask(task);
+            } catch (MoliException e) {
+                System.out.println(DIVIDER);
+                System.out.println(e.getMessage());
+                System.out.println(DIVIDER);
             }
         }
         scanner.close();
@@ -74,7 +70,7 @@ public class Moli {
      * Adds a task to the task list.
      * Updates task count and prints confirmation message.
      *
-     * @param task    The task to be added.
+     * @param task The task to be added.
      */
     private static void addTask(Task task) {
         if (taskCount < MAX_TASKS) {
@@ -87,7 +83,7 @@ public class Moli {
             System.out.println(DIVIDER);
         } else {
             System.out.println(DIVIDER);
-            System.out.println("Oh no! Sorry I can only remember up to " + MAX_TASKS + " tasks:(");
+            System.out.println("Oh no! Sorry I can only remember up to " + MAX_TASKS + " tasks :(");
             System.out.println(DIVIDER);
         }
     }
@@ -111,7 +107,7 @@ public class Moli {
     /**
      * Marks a task as done.
      *
-     * @param input The user input command (e.g., "mark 2").
+     * @param input The user input command.
      */
     private static void markTask(String input) {
         try {
@@ -138,7 +134,7 @@ public class Moli {
     /**
      * Marks a task as not done.
      *
-     * @param input The user input command (e.g., "unmark 2").
+     * @param input The user input command.
      */
     private static void unmarkTask(String input) {
         try {
@@ -161,6 +157,4 @@ public class Moli {
             System.out.println(DIVIDER);
         }
     }
-
-
 }
