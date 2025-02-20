@@ -4,13 +4,13 @@ import moli.task.Task;
 import moli.task.Todo;
 import moli.task.Deadline;
 import moli.task.Event;
+
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Moli {
     private static final int MAX_TASKS = 100;
-    private static final Task[] tasks = new Task[MAX_TASKS];
-    private static int taskCount = 0;
-
+    private static final ArrayList<Task> tasks = Storage.loadTasks(); // Load tasks from file
     private static final String DIVIDER = "____________________________________________________________";
 
     public static void main(String[] args) {
@@ -69,6 +69,7 @@ public class Moli {
                 System.out.println(DIVIDER);
             }
         }
+        Storage.saveTasks(tasks); // Save tasks on exit
         scanner.close();
     }
 
@@ -79,13 +80,12 @@ public class Moli {
      * @param task The task to be added.
      */
     private static void addTask(Task task) {
-        if (taskCount < MAX_TASKS) {
-            tasks[taskCount] = task;
-            taskCount++;
+        if (tasks.size() < MAX_TASKS){
+            tasks.add(task);
             System.out.println(DIVIDER);
             System.out.println("Added: " + task + " ✅");
             System.out.println("I'll help you keep them safely, remember to come back and mark it :)");
-            System.out.println("Now you have " + taskCount + " tasks in the list.");
+            System.out.println("Now you have " + tasks.size() + " tasks in the list.");
             System.out.println(DIVIDER);
         } else {
             System.out.println(DIVIDER);
@@ -99,12 +99,12 @@ public class Moli {
      */
     private static void showTaskList() {
         System.out.println(DIVIDER);
-        if (taskCount == 0) {
+        if (tasks.isEmpty()) {
             System.out.println("Your task list is empty.\nWhat would you like to do? I'm always happy to help you record.");
         } else {
             System.out.println("Here’s what you’ve told me so far: ");
-            for (int i = 0; i < taskCount; i++) {
-                System.out.println((i + 1) + ". " + tasks[i]);
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println((i + 1) + ". " + tasks.get(i));
             }
         }
         System.out.println(DIVIDER);
@@ -118,11 +118,11 @@ public class Moli {
     private static void markTask(String input) {
         try {
             int index = Integer.parseInt(input.substring(5)) - 1;
-            if (index >= 0 && index < taskCount) {
-                tasks[index].markAsDone();
+            if (index >= 0 && index < tasks.size()) {
+                tasks.get(index).markAsDone();
                 System.out.println(DIVIDER);
                 System.out.println("Nice! I've marked this task as done:");
-                System.out.println("  " + tasks[index]);
+                System.out.println("  " + tasks.get(index));
                 System.out.println("Well done! I'm so proud of you!");
                 System.out.println(DIVIDER);
             } else {
@@ -145,11 +145,11 @@ public class Moli {
     private static void unmarkTask(String input) {
         try {
             int index = Integer.parseInt(input.substring(7)) - 1;
-            if (index >= 0 && index < taskCount) {
-                tasks[index].markAsNotDone();
+            if (index >= 0 && index < tasks.size()) {
+                tasks.get(index).markAsNotDone();
                 System.out.println(DIVIDER);
                 System.out.println("Okay, I've marked this task as not done yet:");
-                System.out.println("  " + tasks[index]);
+                System.out.println("  " + tasks.get(index));
                 System.out.println("But I believe you will finish it very soon!");
                 System.out.println(DIVIDER);
             } else {
@@ -163,4 +163,5 @@ public class Moli {
             System.out.println(DIVIDER);
         }
     }
+
 }

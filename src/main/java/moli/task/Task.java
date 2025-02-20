@@ -9,11 +9,13 @@ public class Task {
         this.isDone = false;
     }
 
+    public Task(String description, boolean isDone) {
+        this.description = description;
+        this.isDone = isDone;
+    }
+
     public String getStatusIcon() {
-        if(isDone) {
-            return "[X]"; // Mark done task with X
-        }
-        return"[ ]";
+        return (isDone ? "[X]" : "[ ]");
     }
 
     public void markAsDone() {
@@ -27,5 +29,9 @@ public class Task {
     @Override
     public String toString() {
         return getStatusIcon() + " " + description;
+    }
+
+    public String toFileFormat() {
+        return "T | " + (isDone ? "1" : "0") + " | " + description;
     }
 }
