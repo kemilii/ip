@@ -43,6 +43,8 @@ public class Moli {
                     markTask(input);
                 } else if (input.startsWith("unmark ")) {
                     unmarkTask(input);
+                } else if (input.startsWith("delete ")) {
+                    deleteTask(input);
                 } else if (input.startsWith("todo")) {
                     if (input.length() <= 4) {
                         throw new MoliException("Sorry. A todo task must have a description, I'm here to listen.");
@@ -90,6 +92,33 @@ public class Moli {
         } else {
             System.out.println(DIVIDER);
             System.out.println("Oh no! Sorry I can only remember up to " + MAX_TASKS + " tasks :(");
+            System.out.println(DIVIDER);
+        }
+    }
+
+    /**
+     * Deletes a task from the task list.
+     *
+     * @param input The user input command.
+     */
+    private static void deleteTask(String input) {
+        try {
+            int index = Integer.parseInt(input.substring(7)) - 1;
+            if (index >= 0 && index < tasks.size()) {
+                Task removedTask = tasks.remove(index);
+                System.out.println(DIVIDER);
+                System.out.println("Noted. I've removed this task:");
+                System.out.println("  " + removedTask);
+                System.out.println("Now you have " + tasks.size() + " tasks in the list.");
+                System.out.println(DIVIDER);
+            } else {
+                System.out.println(DIVIDER);
+                System.out.println("Oops! I can't find that task. Please enter a valid number.");
+                System.out.println(DIVIDER);
+            }
+        } catch (NumberFormatException e) {
+            System.out.println(DIVIDER);
+            System.out.println("Please enter a valid task number to delete.");
             System.out.println(DIVIDER);
         }
     }
