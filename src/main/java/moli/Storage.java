@@ -4,7 +4,13 @@ import moli.task.Task;
 import moli.task.Todo;
 import moli.task.Deadline;
 import moli.task.Event;
-import java.io.*;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -20,12 +26,14 @@ public class Storage {
         try {
             File file = new File(FILE_PATH);
             file.getParentFile().mkdirs(); // Create directory if it doesn't exist
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 
-            for (int i = 0; i < tasks.size(); i++) {
-                writer.write(tasks.get(i).toFileFormat() + System.lineSeparator());
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                for (Task task : tasks) {
+                    // Each task has a custom toFileFormat() method
+                    writer.write(task.toFileFormat());
+                    writer.newLine();
+                }
             }
-            writer.close();
         } catch (IOException e) {
             System.out.println("Error saving tasks: " + e.getMessage());
         }
@@ -44,8 +52,7 @@ public class Storage {
             return tasks; // Return empty list if file doesn't exist
         }
 
-        try {
-            Scanner scanner = new Scanner(file);
+        try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 Task task = parseTask(line);
@@ -53,7 +60,6 @@ public class Storage {
                     tasks.add(task);
                 }
             }
-            scanner.close();
         } catch (IOException e) {
             System.out.println("Error loading tasks: " + e.getMessage());
         }
@@ -61,12 +67,6 @@ public class Storage {
         return tasks;
     }
 
-    /**
-     * Parses a line from the file and converts it into a Task object.
-     *
-     * @param line The line from the file.
-     * @return A Task object or null if the format is invalid.
-     */
     private static Task parseTask(String line) {
         try {
             String[] parts = line.split(" \\| ");
@@ -75,16 +75,31 @@ public class Storage {
             String description = parts[2];
 
             switch (type) {
-            case "T":
-                return new Todo(description, isDone);
-            case "D":
-                return new Deadline(description, parts[3], isDone);
-            case "E":
-                return new Event(description, parts[3], parts[4], isDone);
-            default:
-                System.out.println("Corrupted task entry: " + line);
-                return null;
+                case "T":
+                    // T | {1 or 0} | description
+                    return new Todo(description, isDone);
+
+                case "D": {
+                    // D | {1 or 0} | description | 2023-05-15T14:00
+                    LocalDateTime by = LocalDateTime.parse(parts[3]);
+                    return new Deadline(description, by, isDone);
+                }
+
+                case "E": {
+                    // E | {1 or 0} | description | 2023-05-15T14:00 | 2023-05-15T16:00
+                    LocalDateTime from = LocalDateTime.parse(parts[3]);
+                    LocalDateTime to   = LocalDateTime.parse(parts[4]);
+                    return new Event(description, from, to, isDone);
+                }
+
+                default:
+                    System.out.println("Corrupted task entry: " + line);
+                    return null;
             }
+        } catch (DateTimeParseException e) {
+            System.out.println("Error parsing date/time: " + e.getMessage());
+            System.out.println("Line: " + line);
+            return null;
         } catch (Exception e) {
             System.out.println("Error reading task line: " + line);
             return null;

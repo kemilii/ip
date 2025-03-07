@@ -5,7 +5,14 @@ import moli.task.Event;
 import moli.task.Task;
 import moli.task.Todo;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 public class Parser {
+
+    private static final DateTimeFormatter INPUT_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
     /**
      * Processes the user input and executes the corresponding command.
@@ -125,27 +132,55 @@ public class Parser {
 
     private static void addDeadline(String input, TaskList tasks, Ui ui) throws MoliException {
         if (!input.matches("^deadline .+ /by .+$")) {
-            throw new MoliException("Sorry, please enter the correct format: 'deadline TASK_DESCRIPTION /by DEADLINE_DATE'");
+            throw new MoliException("Sorry, please enter the correct format:\n"
+                    + "deadline TASK_DESCRIPTION /by yyyy-MM-dd HHmm\n"
+                    + "e.g., deadline return book /by 2023-05-15 1400");
         }
         String[] parts = input.substring(9).split(" /by ", 2);
-        Deadline deadline = new Deadline(parts[0].trim(), parts[1].trim());
-        tasks.addTask(deadline);
-        ui.showLine();
-        ui.showMessage("Added: " + deadline + " ✅");
-        ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
-        ui.showLine();
+        String description = parts[0].trim();
+        String dateTimeStr = parts[1].trim();
+
+        try {
+            LocalDateTime by = LocalDateTime.parse(dateTimeStr, INPUT_FORMAT);
+            Deadline deadline = new Deadline(description, by);
+            tasks.addTask(deadline);
+
+            ui.showLine();
+            ui.showMessage("Added: " + deadline + " ✅");
+            ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
+            ui.showLine();
+
+        } catch (DateTimeParseException e) {
+            throw new MoliException("Invalid date/time format.\n"
+                    + "Please use 'yyyy-MM-dd HHmm' e.g., 2023-05-15 1400");
+        }
     }
 
     private static void addEvent(String input, TaskList tasks, Ui ui) throws MoliException {
         if (!input.matches("^event .+ /from .+ /to .+$")) {
-            throw new MoliException("Sorry, please enter the correct format: 'event TASK_DESCRIPTION /from START_TIME /to END_TIME'");
+            throw new MoliException("Sorry, please enter the correct format:\n"
+                    + "event TASK_DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm\n"
+                    + "e.g., event project meeting /from 2023-05-15 1400 /to 2023-05-15 1600");
         }
         String[] parts = input.substring(6).split(" /from | /to ", 3);
-        Event event = new Event(parts[0].trim(), parts[1].trim(), parts[2].trim());
-        tasks.addTask(event);
-        ui.showLine();
-        ui.showMessage("Added: " + event + " ✅");
-        ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
-        ui.showLine();
+        String description = parts[0].trim();
+        String fromStr = parts[1].trim();
+        String toStr = parts[2].trim();
+
+        try {
+            LocalDateTime from = LocalDateTime.parse(fromStr, INPUT_FORMAT);
+            LocalDateTime to = LocalDateTime.parse(toStr, INPUT_FORMAT);
+            Event event = new Event(description, from, to);
+            tasks.addTask(event);
+
+            ui.showLine();
+            ui.showMessage("Added: " + event + " ✅");
+            ui.showMessage("Now you have " + tasks.size() + " tasks in the list.");
+            ui.showLine();
+
+        } catch (DateTimeParseException e) {
+            throw new MoliException("Invalid date/time format.\n"
+                    + "Please use 'yyyy-MM-dd HHmm' e.g., 2023-05-15 1400");
+        }
     }
 }

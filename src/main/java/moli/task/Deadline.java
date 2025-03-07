@@ -1,25 +1,36 @@
 package moli.task;
 
-public class Deadline extends Task {
-    protected String by;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-    public Deadline(String description, String by) {
+public class Deadline extends Task {
+    protected LocalDateTime by;
+
+    // We'll only store a DateTimeFormatter for output
+    private static final DateTimeFormatter OUTPUT_FORMAT =
+            DateTimeFormatter.ofPattern("MMM dd yyyy, h:mm a");
+
+    public Deadline(String description, LocalDateTime by) {
         super(description);
         this.by = by;
     }
 
-    public Deadline(String description, String by, boolean isDone) {
+    // Overloaded constructor for loading from file
+    public Deadline(String description, LocalDateTime by, boolean isDone) {
         super(description, isDone);
         this.by = by;
     }
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        // Example: "May 15 2023, 2:00 PM"
+        return "[D]" + super.toString() + " (by: " + by.format(OUTPUT_FORMAT) + ")";
     }
 
     @Override
     public String toFileFormat() {
-        return "D | " + (isDone ? "1" : "0") + " | " + description + " | " + by;
+        // Example: "D | 0 | return book | 2023-05-15T14:00"
+        return "D | " + (isDone ? "1" : "0") + " | "
+                + description + " | " + by; // or by.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
     }
 }
