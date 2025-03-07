@@ -4,6 +4,7 @@ import moli.task.Deadline;
 import moli.task.Event;
 import moli.task.Task;
 import moli.task.Todo;
+import java.util.ArrayList;
 
 public class Parser {
 
@@ -49,6 +50,10 @@ public class Parser {
 
         } else if (input.startsWith("event")) {
             addEvent(input, tasks, ui);
+            return false;
+
+        } else if (input.startsWith("find ")) {
+            findTask(input, tasks, ui);
             return false;
 
         } else {
@@ -109,6 +114,35 @@ public class Parser {
         } catch (NumberFormatException e) {
             throw new MoliException("Please enter a valid task number to delete.");
         }
+    }
+
+    private static void findTask(String input, TaskList tasks, Ui ui) throws MoliException {
+        if (input.length() <= 5) { // "find " is 5 characters long
+            throw new MoliException("Please provide a keyword to search for.");
+        }
+        String keyword = input.substring(5).trim();
+        if (keyword.isEmpty()) {
+            throw new MoliException("The search keyword cannot be empty.");
+        }
+
+        ArrayList<Task> matchingTasks = new ArrayList<>();
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.getTask(i);
+            if (task.toString().toLowerCase().contains(keyword.toLowerCase())) {
+                matchingTasks.add(task);
+            }
+        }
+
+        ui.showLine();
+        if (matchingTasks.isEmpty()) {
+            ui.showMessage("No matching tasks found.");
+        } else {
+            ui.showMessage("Here are the matching tasks in your list:");
+            for (int i = 0; i < matchingTasks.size(); i++) {
+                ui.showMessage((i + 1) + ". " + matchingTasks.get(i));
+            }
+        }
+        ui.showLine();
     }
 
     private static void addTodo(String input, TaskList tasks, Ui ui) throws MoliException {
