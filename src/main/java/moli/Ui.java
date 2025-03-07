@@ -2,16 +2,23 @@ package moli;
 
 import java.util.Scanner;
 
+/**
+ * The Ui class handles all user interactions,
+ * including displaying messages and reading user input.
+ */
 public class Ui {
     private static final String DIVIDER = "____________________________________________________________";
     private final Scanner scanner;
 
+    /**
+     * Constructs a new Ui instance.
+     */
     public Ui() {
-        this.scanner = new Scanner(System.in);
+        scanner = new Scanner(System.in);
     }
 
     /**
-     * Prints the welcome message.
+     * Displays the welcome message.
      */
     public void showWelcome() {
         final String LOGO = "\n"
@@ -28,32 +35,32 @@ public class Ui {
     }
 
     /**
-     * Prints a horizontal divider line.
+     * Displays a horizontal divider.
      */
     public void showLine() {
         System.out.println(DIVIDER);
     }
 
     /**
-     * Reads and returns the next line of user input.
+     * Reads a line of user input.
      *
-     * @return The user's input as a trimmed string.
+     * @return The trimmed user input.
      */
     public String readCommand() {
         return scanner.nextLine().trim();
     }
 
     /**
-     * Prints a given message to the user.
+     * Displays a message to the user.
      *
-     * @param message The message to be displayed.
+     * @param message The message to display.
      */
     public void showMessage(String message) {
         System.out.println(message);
     }
 
     /**
-     * Closes the Scanner (call this before exiting the program).
+     * Closes the Ui and releases resources.
      */
     public void close() {
         scanner.close();
